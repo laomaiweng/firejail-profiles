@@ -1,0 +1,3 @@
+# Some people use maildirs
+noblacklist ${HOME}/.maildir
+noblacklist ${HOME}/.maildir-sent
