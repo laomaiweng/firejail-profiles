@@ -32,7 +32,9 @@ syn keyword fjShell none contained
 
 syn match fjVar /\v\$\{(CFG|DOCUMENTS|DOWNLOADS|HOME|MUSIC|PATH|PICTURES|VIDEOS)}/
 
-syn match fjCommand /\v^(include|noblacklist|nowhitelist|blacklist(-nolog)?|bind|mkdir|mkfile|noexec|overlay-named|private(-home|-bin|-etc|-lib|-opt|-srv)?|read-only|read-write|tmpfs|whitelist|xephyr-screen|rlimit-as|rlimit-cpu|rlimit-fsize|rlimit-nproc|rlimit-nofile|rlimit-sigpending|cpu|nice|cgroup|timeout|name|defaultgw|dns|hostname|hosts-file|ip(6|range)?|mac|mtu|netfilter|net(mask)?|veth-name|join-or-start)>/
+" Commands grabbed from `man firejail-profile`
+" With the addition of 'netfilter6' from https://github.com/netblue30/firejail/blob/master/src/firejail/profile.c
+syn match fjCommand /\v^(include|noblacklist|nowhitelist|blacklist(-nolog)?|bind|mkdir|mkfile|noexec|overlay-named|private(-home|-bin|-etc|-lib|-opt|-srv)?|read-only|read-write|tmpfs|whitelist|xephyr-screen|rlimit-as|rlimit-cpu|rlimit-fsize|rlimit-nproc|rlimit-nofile|rlimit-sigpending|cpu|nice|cgroup|timeout|name|defaultgw|dns|hostname|hosts-file|ip(6|range)?|mac|mtu|netfilter6?|net(mask)?|veth-name|join-or-start)>/
 syn match fjCommand /\v^(quiet|disable-mnt|keep-var-tmp|overlay(-tmpfs)?|private(-cache|-dev|-tmp)?|keep-dev-shm|tracelog|writable-etc|writable-run-user|writable-var(-log)?|apparmor|caps|seccomp(\.block-secondary)?|memory-deny-write-execute|nonewprivs|noroot|x11|allusers|nodvd|nogroups|ipc-namespace|nodbus|nosound|noautopulse|notv|nou2f|novideo|no3d|machine-id|netfilter)$/
 "FIXME: doesn't highlight the ignored command :( (perhaps because it's not 'contained'?)
 syn match fjCommand /^ignore\>/ nextgroup=fjCommand skipwhite
