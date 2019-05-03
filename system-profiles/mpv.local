@@ -1,0 +1,4 @@
+# Need to be in the video group
+ignore nogroups
+
+net none
