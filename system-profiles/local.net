@@ -1,0 +1,32 @@
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT DROP [0:0]
+
+###################################################################
+# Client filter rejecting everything but local network traffic
+#
+# Usage:
+#     firejail --net=eth0 --netfilter=/etc/firejail/local.net firefox
+#
+###################################################################
+
+# allow all loopback traffic
+-A INPUT -i lo -j ACCEPT
+
+# no incoming connections
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# allow ping etc.
+-A INPUT -p icmp --icmp-type destination-unreachable -j ACCEPT
+-A INPUT -p icmp --icmp-type time-exceeded -j ACCEPT
+-A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+
+# accept all local network traffic
+-A OUTPUT -d 192.168.0.0/16 -j ACCEPT
+-A OUTPUT -d 10.0.0.0/8 -j ACCEPT
+-A OUTPUT -d 172.16.0.0/12 -j ACCEPT
+
+# accept multicast traffic
+-A OUTPUT -d 244.0.0.0/4 -j ACCEPT
+COMMIT
