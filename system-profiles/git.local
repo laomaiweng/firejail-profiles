@@ -1,0 +1,2 @@
+# required for gpg to communicate with gpg-agent, when called by git to sign a commit
+writable-run-user
