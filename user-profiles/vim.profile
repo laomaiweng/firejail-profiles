@@ -21,3 +21,9 @@ protocol unix,inet,inet6
 seccomp
 
 private-dev
+# prevents vim from reading files in /tmp, but unbreaks vim plugins that use PID-based temporary directories (e.g., cscope) and end up broken in the PID namespace since they all get the same PID
+private-tmp
+
+# keep these readable/modifiable too
+keep-var-tmp
+keep-dev-shm
