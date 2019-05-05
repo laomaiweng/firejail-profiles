@@ -47,11 +47,11 @@ syn keyword fjLo lo contained
 syn match fjVar /\v\$\{(CFG|DESKTOP|DOCUMENTS|DOWNLOADS|HOME|MUSIC|PATH|PICTURES|RUNUSER|VIDEOS)}/
 
 " Commands grabbed from: https://github.com/netblue30/firejail/blob/master/src/firejail/profile.c (commit 3d84845f859cd3d200eb92a1308dfda7e1374fec)
-" Generate list with: { rg -o 'strn?cmp\(ptr, "([^"]+) "' -r '$1' src/firejail/profile.c; echo private-lib; } | grep -vEx '(ignore|caps\.drop|caps\.keep|protocol|seccomp|seccomp\.drop|seccomp\.keep|env|rmenv|net|ip)' | sort -u | tr $'\n' '|' # private-lib is special-cased in the code and doesn't match the regex; grep-ed patterns are handled later with 'syn match nextgroup=' directives
-syn match fjCommand /\v(bind|blacklist|blacklist-nolog|cgroup|cpu|defaultgw|dns|hostname|hosts-file|include|ip6|iprange|join-or-start|mac|mkdir|mkfile|mtu|name|netfilter|netfilter6|netmask|nice|noblacklist|noexec|nowhitelist|overlay-named|private|private-bin|private-etc|private-home|private-lib|private-opt|private-srv|read-only|read-write|rlimit-as|rlimit-cpu|rlimit-fsize|rlimit-nofile|rlimit-nproc|rlimit-sigpending|timeout|tmpfs|veth-name|whitelist|xephyr-screen) / contained
-" Generate list with: rg -o 'strn?cmp\(ptr, "([^ "]*[^ ])"' -r '$1' src/firejail/profile.c | grep -vEx '(include|rlimit)' | sed -e 's/\./\\./' | sort -u | tr $'\n' '|' # include/rlimit are false positives
-syn match fjCommand /\v(allusers|apparmor|caps|disable-mnt|ipc-namespace|keep-dev-shm|keep-var-tmp|machine-id|memory-deny-write-execute|netfilter|no3d|noautopulse|nodbus|nodvd|nogroups|nonewprivs|noroot|nosound|notv|nou2f|novideo|overlay|overlay-tmpfs|private|private-cache|private-dev|private-lib|private-tmp|quiet|seccomp|seccomp\.block-secondary|tracelog|writable-etc|writable-run-user|writable-var|writable-var-log|x11)$/ contained
-syn match fjCommand /ignore / nextgroup=fjCommand skipwhite contained
+" Generate list with: { rg -o 'strn?cmp\(ptr, "([^"]+) "' -r '$1' firejail/src/firejail/profile.c; echo private-lib; } | grep -vEx '(include|ignore|caps\.drop|caps\.keep|protocol|seccomp|seccomp\.drop|seccomp\.keep|env|rmenv|net|ip)' | sort -u | tr $'\n' '|' # private-lib is special-cased in the code and doesn't match the regex; grep-ed patterns are handled later with 'syn match nextgroup=' directives (except for include which is special-cased as a fjCommandNoCond keyword)
+syn match fjCommand /\v(bind|blacklist|blacklist-nolog|cgroup|cpu|defaultgw|dns|hostname|hosts-file|ip6|iprange|join-or-start|mac|mkdir|mkfile|mtu|name|netfilter|netfilter6|netmask|nice|noblacklist|noexec|nowhitelist|overlay-named|private|private-bin|private-etc|private-home|private-lib|private-opt|private-srv|read-only|read-write|rlimit-as|rlimit-cpu|rlimit-fsize|rlimit-nofile|rlimit-nproc|rlimit-sigpending|timeout|tmpfs|veth-name|whitelist|xephyr-screen) / skipwhite contained
+" Generate list with: rg -o 'strn?cmp\(ptr, "([^ "]*[^ ])"' -r '$1' firejail/src/firejail/profile.c | grep -vEx '(include|rlimit|quiet)' | sed -e 's/\./\\./' | sort -u | tr $'\n' '|' # include/rlimit are false positives, quiet is special-cased below
+syn match fjCommand /\v(allusers|apparmor|caps|disable-mnt|ipc-namespace|keep-dev-shm|keep-var-tmp|machine-id|memory-deny-write-execute|netfilter|no3d|noautopulse|nodbus|nodvd|nogroups|nonewprivs|noroot|nosound|notv|nou2f|novideo|overlay|overlay-tmpfs|private|private-cache|private-dev|private-lib|private-tmp|seccomp|seccomp\.block-secondary|tracelog|writable-etc|writable-run-user|writable-var|writable-var-log|x11)$/ contained
+syn match fjCommand /ignore / nextgroup=fjCommand,fjCommandNoCond skipwhite contained
 syn match fjCommand /caps\.drop / nextgroup=fjCapability,fjAll skipwhite contained
 syn match fjCommand /caps\.keep / nextgroup=fjCapability skipwhite contained
 syn match fjCommand /protocol / nextgroup=fjProtocol skipwhite contained
@@ -62,13 +62,22 @@ syn match fjCommand /rmenv / nextgroup=fjRmenvVar skipwhite contained
 syn match fjCommand /shell / nextgroup=fjNone skipwhite contained
 syn match fjCommand /net / nextgroup=fjNone,fjLo skipwhite contained
 syn match fjCommand /ip / nextgroup=fjNone skipwhite contained
+" Commands that can't be inside a ?CONDITIONAL: statement
+syn match fjCommandNoCond /include / skipwhite contained
+syn match fjCommandNoCond /quiet$/ contained
 
-" Makes sure fjCommand is only matched at the beginning of a line (or following an 'ignore' command)
-syn match fjStatement /^/ nextgroup=fjCommand,fjComment
+" Conditionals grabbed from: https://github.com/netblue30/firejail/blob/master/src/firejail/profile.c (commit 3d84845f859cd3d200eb92a1308dfda7e1374fec)
+" Generate list with: awk -- 'BEGIN {process=0;} /^Cond conditionals\[\] = \{$/ {process=1;} /\t*\{"[^"]+".*/ { if (process) {print gensub(/^\t*\{"([^"]+)".*$/, "\\1", 1);} } /^\t\{ NULL, NULL \}$/ {process=0;}' firejail/src/firejail/profile.c | sort -u | tr $'\n' '|'
+syn match fjConditional /\v\?(BROWSER_ALLOW_DRM|BROWSER_DISABLE_U2F|HAS_APPIMAGE|HAS_NODBUS) ?:/ nextgroup=fjCommand skipwhite contained
+
+" A line is either a command, a conditional or a comment
+syn match fjStatement /^/ nextgroup=fjCommand,fjCommandNoCond,fjConditional,fjComment
 
 hi def link fjTodo Todo
 hi def link fjComment Comment
 hi def link fjCommand Statement
+hi def link fjCommandNoCond Statement
+hi def link fjConditional Macro
 hi def link fjVar Identifier
 hi def link fjCapability Type
 hi def link fjProtocol Type
