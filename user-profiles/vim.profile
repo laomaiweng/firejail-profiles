@@ -27,3 +27,6 @@ private-tmp
 # keep these readable/modifiable too
 keep-var-tmp
 keep-dev-shm
+
+# silence Firejailed child processes (esp. required for vim-fugitive to correctly parse git output without Firejail mangling it)
+env FIREJAIL_QUIET=yes
