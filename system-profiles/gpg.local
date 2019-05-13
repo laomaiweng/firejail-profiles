@@ -1,0 +1,2 @@
+# Required to communicate with gpg-agent
+writable-run-user

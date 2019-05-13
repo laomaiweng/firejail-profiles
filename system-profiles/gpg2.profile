@@ -3,8 +3,5 @@
 
 quiet
 
-# Required to communicate with gpg-agent
-writable-run-user
-
 # Redirect
 include /etc/firejail/gpg.profile
