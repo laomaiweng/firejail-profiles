@@ -27,6 +27,7 @@ read-only ${HOME}/.rustup
 read-only ${HOME}/.multirust
 
 # top secret
+blacklist ${HOME}/.clasprc.json
 blacklist ${HOME}/.gd
 blacklist ${HOME}/.gdrives
 blacklist ${HOME}/.gist-vim
