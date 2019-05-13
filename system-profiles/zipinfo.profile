@@ -1,5 +1,6 @@
 # Firejail profile for zipinfo
 # Description: List detailed information about a ZIP archive
+quiet
 # Persistent local customizations
 include /etc/firejail/zipinfo.local
 # Persistent global definitions
