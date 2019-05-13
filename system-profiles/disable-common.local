@@ -26,7 +26,10 @@ read-only ${HOME}/.cargo
 read-only ${HOME}/.rustup
 read-only ${HOME}/.multirust
 
-# top secret
+# Sandbox escapes
+blacklist ${HOME}/.urxvt
+
+# Top secret
 blacklist ${HOME}/.clasprc.json
 blacklist ${HOME}/.gd
 blacklist ${HOME}/.gdrives
