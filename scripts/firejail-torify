@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Torsocks preparation
+if [[ -z "$TORSOCKS" ]]; then
+    TORSOCKS=torsocks
+    TORSOCKS_OPTS=-i
+    if [[ -z "$(command -v torsocks)" ]]; then
+        TORSOCKS=torify
+        TORSOCKS_OPTS=
+        [[ -n "$(command -v torify)" ]] || { echo 'Error: `torsocks` or `torify` required' >&2; exit 1; }
+    fi
+elif [[ -z "$(command -v "$TORSOCKS")" ]]; then
+    echo "Error: invalid torsocks command: $TORSOCKS" >&2
+    exit 1
+fi
+
+# Help
+if (( $# == 0 )); then
+    cat >&2 <<-EOF
+	Usage: ${0##*/} COMMAND [ARG ...]
+	
+	Firejail + torify/torsocks wrapper.
+	
+	Environment variables:
+	  TORSOCKS              torsocks program
+	                        (current: $TORSOCKS)
+	  TORSOCKS_OPTS         options for torsocks
+	                        (current: $TORSOCKS_OPTS)
+	  FIREJAIL_PROFILE      firejail profile to load
+	                        set to empty for --noprofile
+	                        (default: auto-detect)
+	EOF
+    exit 0
+fi
+
+# Firejail profile selection
+cmd="$1"
+if [[ ! -v FIREJAIL_PROFILE ]]; then
+    # Unset FIREJAIL_PROFILE: auto-detect
+    profile=()  # default profile
+    [[ -r /etc/firejail/"$cmd".profile ]] && profile=(--profile=/etc/firejail/"$cmd".profile)
+    [[ -r ~/.config/firejail/"$cmd".profile ]] && profile=(--profile="$HOME"/.config/firejail/"$cmd".profile)
+elif [[ -z "$FIREJAIL_PROFILE" ]]; then
+    # Explicitly empty FIREJAIL_PROFILE: don't use a profile
+    profile=(--noprofile)
+else
+    # Explicit profile
+    profile=(--profile="$FIREJAIL_PROFILE")
+fi
+
+# Path lookup
+# Torsocks can't run setuid programs, so any symlink to Firejail that's in the path must be removed
+while [[ "$(readlink "$(command -v "$cmd")")" == /usr/bin/firejail ]]; do
+    PATH="${PATH#*:}"
+done
+
+# Run!
+exec firejail "${profile[@]}" -- $TORSOCKS $TORSOCKS_OPTS "$@"
