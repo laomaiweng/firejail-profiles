@@ -30,9 +30,11 @@ read-only ${HOME}/.multirust
 blacklist ${HOME}/.urxvt
 
 # Top secret
+blacklist ${HOME}/.age
 blacklist ${HOME}/.clasprc.json
 blacklist ${HOME}/.gd
 blacklist ${HOME}/.gdrives
 blacklist ${HOME}/.gist-vim
+blacklist ${HOME}/.ssh/private-keys.d
 blacklist ${HOME}/.wgetpaste.d
 blacklist ${HOME}/.wechallrc
