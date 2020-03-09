@@ -1,5 +1,6 @@
 # Firejail profile for vim
 # Description: Vi IMproved - enhanced vi editor
+quiet
 # Persistent global definitions
 include /etc/firejail/globals.local
 
@@ -29,4 +30,5 @@ keep-var-tmp
 keep-dev-shm
 
 # silence Firejailed child processes (esp. required for vim-fugitive to correctly parse git output without Firejail mangling it)
+# 'quiet' above should already do this, but force it anyway
 env FIREJAIL_QUIET=yes
